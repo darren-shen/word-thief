@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useWordChecker } from 'react-word-checker'
 import io from 'socket.io-client';
+import ReactModal from 'react-modal';
 
 const socket = io('http://localhost:5001/', {
   transports: ["websocket"],
@@ -13,7 +14,7 @@ const socket = io('http://localhost:5001/', {
 
 const MAX_LETTERS = 10
 
-const GameBoard = ({ wordsToWin, numOpponents }) => {
+const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxLetters }) => {
     const [gameState, setGameState] = useState({
                               "letters": "",
                               "letter_counts": {},
@@ -21,6 +22,7 @@ const GameBoard = ({ wordsToWin, numOpponents }) => {
                               "players": {0: {"agent": false, "words": []}, 1: {"agent": true, "words": [], "vocab": [], "speed": 6, "next_move": 6}, 2:{"agent": true, "words": [], "vocab": [], "speed": 6, "next_move": 6}},
                               "ended": false
                           })
+    const [isGameOver, setIsGameOver] = useState(false);
     const { wordExists } = useWordChecker("en")
     const [currWord, setWord] = useState('')
     const currWordCounts = useRef({})
@@ -30,17 +32,20 @@ const GameBoard = ({ wordsToWin, numOpponents }) => {
     let initialized = false
     useEffect(() => {
       if (!initialized) {
-        socket.emit('initialize', { "num_agents": 4, "num_players": 1, "letter_frequency": 2, "max_letters": 10 })
+        socket.emit('initialize', { "words_to_win": wordsToWin, "num_agents": numOpponents, "num_players": numPlayers, "letter_frequency": letterFrequency, "max_letters": maxLetters })
         initialized = true
       }
       socket.on('game_state', (gameState) => {
         setGameState(gameState)
+        if (gameState["ended"]) {
+          setIsGameOver(true)
+        }
       })
 
       return () => {
         socket.off('game_state')
       }
-    }, [numOpponents])
+    }, [numOpponents, wordsToWin, numPlayers, letterFrequency, maxLetters])
 
 
     /* KEY PRESSES FOR INPUT FIELD */
@@ -211,6 +216,16 @@ const GameBoard = ({ wordsToWin, numOpponents }) => {
           className="absolute bottom-0 left-0 right-0 border border-black p-2 m-3 rounded-md"
           placeholder="Type your word"
         />
+
+        <ReactModal
+          isOpen={isGameOver}
+          onRequestClose={() => setIsGameOver(false)}
+          contentLabel="Game Over"
+        >
+          <h2>Game Over</h2>
+          <p>Player {gameState["winner"]} has won the game!</p>
+          <button onClick={() => setIsGameOver(false)}>Close</button>
+        </ReactModal>
       </div>
     );
   };

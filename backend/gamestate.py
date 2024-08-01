@@ -25,13 +25,15 @@ alphabet = "AAAAAAAAAAAAABBBCCCDDDDDDEEEEEEEEEEEEEEEEEEFFFGGGGHHHIIIIIIIIIIIIJJK
 @socketio.on('initialize')
 def initialize(data):
     global game_state
-    num_agents, num_players, letter_frequency, max_letters = data.get('num_agents', 2), data.get('num_players', 1), data.get('letter_frequency', 5), data.get('max_letters', 10)
+    global words_to_win
+    words_to_win, num_agents, num_players, letter_frequency, max_letters = data.get('words_to_win', 10), data.get('num_agents', 2), data.get('num_players', 1), data.get('letter_frequency', 5), data.get('max_letters', 10)
     game_state = {
         "letters": "",
         "letter_counts": defaultdict(int),
         "letter_timer": letter_frequency,
         "players": {},
-        "ended": False
+        "ended": False,
+        "winner": -1
     }
     for i in range(num_players):
         game_state['players'][i] = {"agent": False, "words": []}
@@ -55,6 +57,15 @@ def initialize(data):
                 if game_state["players"][id]["next_move"] < 0:
                     agent_move(id)
                     game_state["players"][id]["next_move"] = game_state["players"][id]["speed"]
+
+        winner = win_check()
+        if winner >= 0:
+            print('game over, winner is', winner)
+            game_state['ended'] = True
+            game_state['winner'] = winner
+            emit('game_state', game_state, broadcast=True)
+            return
+
         sleep(.2)
         prev_time = curr_time
         emit('game_state', game_state, broadcast=True)
@@ -158,7 +169,11 @@ def agent_move(id):
                         return
 
 # TODO: add win condition
-
+def win_check():
+    for id in game_state["players"]:
+        if len(game_state["players"][id]["words"]) >= words_to_win:
+            return id
+    return -1
 
 if __name__ == '__main__':
     socketio.run(app, port=5001, debug=True)
