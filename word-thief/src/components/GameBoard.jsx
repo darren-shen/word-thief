@@ -12,40 +12,38 @@ const socket = io('http://localhost:5001/', {
   }
 )
 
-const MAX_LETTERS = 10
-
-const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxLetters }) => {
+const GameBoard = ({ username, gameId }) => {
     const [gameState, setGameState] = useState({
-                              "letters": "",
-                              "letter_counts": {},
-                              "letter_timer": 5,
-                              "players": {0: {"agent": false, "words": []}, 1: {"agent": true, "words": [], "vocab": [], "speed": 6, "next_move": 6}, 2:{"agent": true, "words": [], "vocab": [], "speed": 6, "next_move": 6}},
-                              "ended": false
-                          })
+        "letters": "",
+        "players": {},
+        "ended": false,
+        "winner": null
+    })
     const [isGameOver, setIsGameOver] = useState(false);
     const { wordExists } = useWordChecker("en")
     const [currWord, setWord] = useState('')
     const currWordCounts = useRef({})
-    const id = 0
 
-    /* INITIALIZE BACKEND */
-    let initialized = false
     useEffect(() => {
-      if (!initialized) {
-        socket.emit('initialize', { "words_to_win": wordsToWin, "num_agents": numOpponents, "num_players": numPlayers, "letter_frequency": letterFrequency, "max_letters": maxLetters })
-        initialized = true
-      }
+      socket.emit('join_game', ({'game_id': gameId, 'username': username}))
+
       socket.on('game_state', (gameState) => {
         setGameState(gameState)
         if (gameState["ended"]) {
           setIsGameOver(true)
         }
-      })
+      }, [username, gameId])
+
+      const handleBeforeUnload = () => {
+        socket.emit('leave_game', ({'game_id': gameId, 'username': username}))
+      }
+      window.addEventListener('beforeunload', handleBeforeUnload)
 
       return () => {
+        socket.emit('leave_game', ({'game_id': gameId, 'username': username}))
         socket.off('game_state')
       }
-    }, [numOpponents, wordsToWin, numPlayers, letterFrequency, maxLetters])
+    }, [gameId, username])
 
 
     /* KEY PRESSES FOR INPUT FIELD */
@@ -97,19 +95,17 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
     /* MOUSE CLICKS TO FINISH WORDS */
 
     const lettersClick = () => {
-      console.log(currWord)
       if (!(wordExists(currWord)) || currWord.length < 3){
         return
       }
-      console.log('yay')
-      console.log(gameState["letter_counts"])
       for (const letter in currWordCounts.current) {
-        if (currWordCounts.current[letter] > gameState["letter_counts"][letter]) {
+        if (currWordCounts.current[letter] > (gameState["letter_counts"][letter] || 0)) {
           return 
         }
       }
 
-      socket.emit('process_packet', { "add_word": currWord, "add_id": id, "remove_letters": currWord })
+      console.log(gameState["letter_counts"])
+      socket.emit('process_packet', { "game_id": gameId, "add_word": currWord, "add_id": username, "remove_letters": currWord })
       socket.on('game_state', (gameState) => {
         setGameState(gameState)
       })
@@ -119,8 +115,6 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
     }
 
     const wordListClick = (clickId, wordList) => {
-      clickId = parseInt(clickId)
-      console.log(currWord)
       if (!(wordExists(currWord)) || currWord.length < 3){
         return
       }
@@ -131,8 +125,6 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
           combinedCounts[letter] = (combinedCounts[letter] || 0) + 1
           chosenCounts[letter] = (chosenCounts[letter] || 0) + 1
         }
-        console.log(combinedCounts)
-        console.log(currWordCounts.current)
         if (check(combinedCounts, currWordCounts.current) && check(currWordCounts.current, chosenCounts) && !same(currWordCounts.current, chosenCounts)) {
           const usedLetterCounts = { ...currWordCounts.current }
           for (const letter of word) {
@@ -145,11 +137,10 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
             }
           }
 
-          socket.emit('process_packet', { "add_word": currWord, "add_id": id, "remove_word": word, "remove_id": clickId, "remove_letters": remove })
+          socket.emit('process_packet', { "game_id": gameId, "add_word": currWord, "add_id": username, "remove_word": word, "remove_id": clickId, "remove_letters": remove })
           socket.on('game_state', (gameState) => {
             setGameState(gameState)
           })
-
 
           setWord('')
           currWordCounts.current = {}
@@ -174,26 +165,13 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
           </button>
         </div>
         <div className="flex flex-row justify-center space-x-10">
-          <div key={0}>
-            <button onClick={() => wordListClick(id, gameState["players"][id]["words"])}>
-              <p className="mt-4 p-2 justify-center flex flex-row">YOUR WORDS</p>
-              {gameState["players"][id]["words"]?.map((word, i) => (
-              <div key={i} className="flex flex-row justify-center">
-                {word.split('').map((char, j) => (
-                  <div key={j} className="border border-black pl-1.5 pr-1.5 pt-0.5 pb-0.5 m-1 rounded-md">
-                    {char}
-                  </div>
-                ))}
-              </div>
-              ))}
-            </button>
-          </div>
-          {Object.keys(gameState["players"] || {}).map((playerId) => (
-          gameState["players"][playerId]["agent"] && (
+          {Object.keys(gameState.players || {}).map((playerId) => (
             <div key={playerId}>
-              <button onClick={() => wordListClick(playerId, gameState.players[playerId]?.words || [])}>
-                <p className="mt-4 p-2 justify-center flex flex-row">ENEMY {playerId}</p>
-                {gameState["players"][playerId]["words"]?.map((word, i) => (
+              <button onClick={() => wordListClick(playerId, gameState.players[playerId].words)}>
+                <p className="mt-4 p-2 justify-center flex flex-row">
+                  {playerId === username ? 'YOUR WORDS' : playerId}
+                </p>
+                {gameState.players[playerId].words.map((word, i) => (
                   <div key={i} className="flex flex-row justify-center">
                     {word.split('').map((char, j) => (
                       <div key={j} className="border border-black pl-1.5 pr-1.5 pt-0.5 pb-0.5 m-1 rounded-md">
@@ -204,8 +182,7 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
                 ))}
               </button>
             </div>
-          )
-        ))}
+          ))}
         </div>
 
         <input
@@ -223,7 +200,7 @@ const GameBoard = ({ wordsToWin, numOpponents, numPlayers, letterFrequency, maxL
           contentLabel="Game Over"
         >
           <h2>Game Over</h2>
-          <p>Player {gameState["winner"]} has won the game!</p>
+          <p>{gameState["winner"]} has won the game!</p>
           <button onClick={() => setIsGameOver(false)}>Close</button>
         </ReactModal>
       </div>

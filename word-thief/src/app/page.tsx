@@ -1,10 +1,10 @@
-import Image from "next/image";
-import GameBoard from "../components/GameBoard"
+import dynamic from 'next/dynamic';
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-      <GameBoard wordsToWin={5} numOpponents={2} letterFrequency={8} maxLetters={10} numPlayers={1} />
-    </main>
-  );
-}
+// Dynamically import the App component to ensure it's only rendered on the client side
+const App = dynamic(() => import('../components/App'), { ssr: false });
+
+const HomePage = () => {
+  return <App />;
+};
+
+export default HomePage;
