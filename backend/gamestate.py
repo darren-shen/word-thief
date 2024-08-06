@@ -142,40 +142,39 @@ def start(data):
     print('game', game_id, 'has started')
 
     prev_time = datetime.now()
-    while not games[game_id]["ended"]:
-        if empty(game_id):
-            break
-        curr_time = datetime.now()
-        games[game_id]["letter_timer"] -= (curr_time - prev_time).total_seconds() 
-        if games[game_id]["letter_timer"] < 0 and (len(games[game_id]["letters"]) < games[game_id]["max_letters"] or games[game_id]["gametype"] == "flash") and not games[game_id]["end_countdown"]:
-            add_random_letter(game_id)
-            games[game_id]["letter_timer"] = games[game_id]["letter_frequency"]
-        
-        for id in games[game_id]["players"]:
-            if games[game_id]["players"][id]["agent"]:
-                games[game_id]["players"][id]["next_move"] -= (curr_time - prev_time).total_seconds()
-                if games[game_id]["players"][id]["next_move"] < 0:
-                    agent_move(game_id, id)
-                    games[game_id]["players"][id]["next_move"] = games[game_id]["players"][id]["speed"]
+    while not empty(game_id):
+        if not games[game_id]["ended"]:
+            curr_time = datetime.now()
+            games[game_id]["letter_timer"] -= (curr_time - prev_time).total_seconds() 
+            if games[game_id]["letter_timer"] < 0 and (len(games[game_id]["letters"]) < games[game_id]["max_letters"] or games[game_id]["gametype"] == "flash") and not games[game_id]["end_countdown"]:
+                add_random_letter(game_id)
+                games[game_id]["letter_timer"] = games[game_id]["letter_frequency"]
+            
+            for id in games[game_id]["players"]:
+                if games[game_id]["players"][id]["agent"]:
+                    games[game_id]["players"][id]["next_move"] -= (curr_time - prev_time).total_seconds()
+                    if games[game_id]["players"][id]["next_move"] < 0:
+                        agent_move(game_id, id)
+                        games[game_id]["players"][id]["next_move"] = games[game_id]["players"][id]["speed"]
 
-        if games[game_id]["end_countdown"]:
-            if games[game_id]["end_countdown"] > 0:
-                games[game_id]["end_countdown"] -= (curr_time - prev_time).total_seconds() 
+            if games[game_id]["end_countdown"]:
+                if games[game_id]["end_countdown"] > 0:
+                    games[game_id]["end_countdown"] -= (curr_time - prev_time).total_seconds() 
+                else:
+                    winner = find_winner(game_id)
+                    print('game over, winner is', winner)
+                    games[game_id]['ended'] = True
+                    games[game_id]['winner'] = winner
+                    emit('game_state', games[game_id], to=game_id)
             else:
-                winner = find_winner(game_id)
-                print('game over, winner is', winner)
-                games[game_id]['ended'] = True
-                games[game_id]['winner'] = winner
-                emit('game_state', games[game_id], to=game_id)
-                break
-        else:
-            games[game_id]["end_countdown"] = end_check(game_id)
+                games[game_id]["end_countdown"] = end_check(game_id)
 
-        prev_time = curr_time
-        emit('game_state', games[game_id], to=game_id)
+            prev_time = curr_time
+            emit('game_state', games[game_id], to=game_id)
         sleep(.1)
 
     del games[game_id]
+    print('deleted', game_id)
 
 
 @socketio.on('process_packet') 
@@ -317,7 +316,7 @@ def random_lobby():
 
 def end_check(game_id):
     if games[game_id]["gametype"] == "flash":
-        if (len(games[game_id]["letter_distribution"]) == 0):
+        if (len(games[game_id]["letter_distribution"]) == 143):
             return 10
         return None
     else:

@@ -1,5 +1,6 @@
 "use client"
 import { useState } from 'react'
+import LetterTile from './LetterTile'
 
 const JoinForm = ({ onJoin }) => {
     const [username, setUsername] = useState('')

@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import ReactModal from 'react-modal';
 import LetterTile from './LetterTile'
 
-const socket = io('http://localhost:5001/', {
+const socket = io(process.env.NEXT_PUBLIC_ROOT_API_URL, {
   transports: ["websocket"],
   cors: {
     origin: "http://localhost:3000/",
@@ -13,7 +13,7 @@ const socket = io('http://localhost:5001/', {
   }
 )
 
-const GameBoard = ({ username, gameId }) => {
+const GameBoard = ({ username, gameId, onGameEnd }) => {
     const [gameState, setGameState] = useState({
         "letters": "",
         "players": {},
@@ -21,6 +21,7 @@ const GameBoard = ({ username, gameId }) => {
         "winner": null
     })
     const [isGameOver, setIsGameOver] = useState(false);
+    const [scoreboard, setScoreboard] = useState(false);
     const { wordExists } = useWordChecker("en")
     const [currWord, setWord] = useState('')
     const currWordCounts = useRef({})
@@ -32,6 +33,7 @@ const GameBoard = ({ username, gameId }) => {
         setGameState(gameState)
         if (gameState["ended"]) {
           setIsGameOver(true)
+          setScoreboard(true)
         }
       }, [username, gameId])
 
@@ -150,9 +152,6 @@ const GameBoard = ({ username, gameId }) => {
       }
     }
 
-
-    /* TODO: add formatting! :D */
-
     return (
       <div id="gameBoard" tabIndex="0" className="bg-gradient-to-b from-[#151444] to-[#7F5AE0] absolute inset-0 flex flex-col">
         <div className="flex flex-row justify-center h-[140px]">
@@ -186,23 +185,47 @@ const GameBoard = ({ username, gameId }) => {
           ))}
         </div>
 
+        {isGameOver ? (
+        <button className="text-center fixed bottom-0 left-0 right-0 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-lg p-2 m-6 text-main-blue h-[50px] text-xl font-bold" onClick={() => setScoreboard(true)}>
+          OPEN SCOREBOARD
+        </button>) : (
         <input
           type="text"
           value={currWord}
           onKeyDown={handleKeyPress}
           onChange={()=>{}}
-          className="text-center fixed bottom-0 left-0 right-0 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-lg p-2 m-3 text-main-blue h-[50px] text-xl font-bold"
+          className="text-center fixed bottom-0 left-0 right-0 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-lg p-2 m-6 text-main-blue h-[50px] text-xl font-bold"
           placeholder="TYPE YOUR WORD"
-        />
+        />)}
 
         <ReactModal
-          isOpen={isGameOver}
-          onRequestClose={() => setIsGameOver(false)}
+          isOpen={scoreboard}
+          onRequestClose={() => setScoreboard(false)}
           contentLabel="Game Over"
+          style={{
+            overlay: {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            },
+            content: {
+              top: '50%',
+              left: '50%',
+              right: 'auto',
+              bottom: 'auto',
+              marginRight: '-50%',
+              transform: 'translate(-50%, -50%)',
+              width: '300px',
+              height: '400px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+            }
+          }}
         >
-          <h2>Game Over</h2>
-          <p>{gameState["winner"]} has won the game!</p>
-          <button onClick={() => setIsGameOver(false)}>Close</button>
+          <h2 className="font-bold text-xl text-main-blue">GAME OVER</h2>
+          <p className="text-lg text-main-blue">{gameState["winner"]} has won the game!</p>
+          <button className="absolute bottom-4 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-lg py-1 px-3 m-2 text-main-blue h-[50px] text-xl font-bold" onClick={() => onGameEnd()}>HOME</button>
         </ReactModal>
       </div>
     );

@@ -18,6 +18,10 @@ const App = () => {
         setStage("game")
     }
 
+    const handleEnd = () => {
+      setStage("join")
+    }
+
     console.log(stage)
     console.log(userDetails)
     return (
@@ -34,6 +38,7 @@ const App = () => {
             <GameBoard
               username={userDetails["username"]}
               gameId={userDetails["game_id"]}
+              onGameEnd={handleEnd}
             />
           )}
         </div>
