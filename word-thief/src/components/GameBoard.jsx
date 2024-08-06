@@ -159,7 +159,7 @@ const GameBoard = ({ username, gameId, onGameEnd }) => {
             <p className="p-2 text-white font-bold text-2xl">LETTERS</p>
             <div className="bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-md p-4">
               {gameState["letters"]?.split("").map((char, i) => (
-                <LetterTile letter={char} />
+                <LetterTile key={i} letter={char} />
               ))}
             </div>
           </button>
@@ -175,7 +175,7 @@ const GameBoard = ({ username, gameId, onGameEnd }) => {
                   {gameState.players[playerId].words.map((word, i) => (
                     <div key={i} className="flex flex-row justify-center py-0.5">
                       {word.split('').map((char, j) => (
-                        <LetterTile letter={char} />
+                        <LetterTile key={i} letter={char} />
                       ))}
                     </div>
                   ))}

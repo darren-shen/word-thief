@@ -49,7 +49,7 @@ const Lobby = ({ gameId, username, onGameStart }) => {
       socket.off('lobby_update');
       socket.off('game_started');
     };
-  }, [gameId, username]);
+  }, [gameId, username, onGameStart]);
 
   const handleStartGame = () => {
 
