@@ -7,6 +7,9 @@ from random import sample, randint, choice, choices
 from datetime import datetime
 from string import ascii_uppercase, digits
 from time import sleep
+from eventlet import monkey_patch, listen
+from eventlet.wsgi import server
+import os
 
 """
 list of bugs to fix:
@@ -344,4 +347,5 @@ def find_winner(game_id):
         return winner
 
 if __name__ == '__main__':
-    socketio.run(app, port=5001, debug=True)
+    monkey_patch()
+    server(listen(('0.0.0.0', int(os.environ.get('PORT', 5000)))), app)
