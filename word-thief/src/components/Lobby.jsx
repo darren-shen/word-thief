@@ -6,10 +6,10 @@ import inactiveFlash from "../../public/assets/InactiveFlash.svg"
 import activeExtended from "../../public/assets/ActiveExtended.svg"
 import inactiveExtended from "../../public/assets/InactiveExtended.svg"
 
-const socket = io('http://localhost:5001/', {
+const socket = io(process.env.NEXT_PUBLIC_ROOT_API_URL, {
   transports: ['websocket'],
   cors: {
-    origin: 'http://localhost:3000/',
+    origin: 'https://word-thief.vercel.app/',
   },
 });
 
