@@ -11,8 +11,6 @@ from time import sleep
 """
 list of bugs to fix:
 - display number of letters remaining in flash
-- can change variables in extended in lobby to affect flash
-- make create lobby button: solution, if you want to create a lobby leave the gameId field blank
 """
 
 app = Flask(__name__)
@@ -34,8 +32,8 @@ default_gamestate = {
     "letters": "",
     "letter_counts": defaultdict(int),
     "max_letters": 10,
-    "letter_frequency": 10,
-    "letter_timer": 10,
+    "letter_frequency": 2,
+    "letter_timer": 2,
     "players": {},
     "words_to_win": 10,
     "end_countdown": None,
@@ -123,15 +121,16 @@ def start(data):
         # add some error
         return
     
-    words_to_win = data.get('words_to_win', games[game_id]['words_to_win'])
-    games[game_id]['words_to_win'] = words_to_win
-    letter_frequency = data.get('letter_frequency', games[game_id]['letter_frequency'])
-    games[game_id]['letter_frequency'] = letter_frequency
-    games[game_id]['letter_timer'] = letter_frequency
-    max_letters = data.get('max_letters', games[game_id]['max_letters'])
-    games[game_id]['max_letters'] = max_letters
     gametype = data.get('gametype', games[game_id]['gametype'])
     games[game_id]['gametype'] = gametype
+    if gametype != "flash":
+        words_to_win = data.get('words_to_win', games[game_id]['words_to_win'])
+        games[game_id]['words_to_win'] = words_to_win
+        letter_frequency = data.get('letter_frequency', games[game_id]['letter_frequency'])
+        games[game_id]['letter_frequency'] = letter_frequency
+        games[game_id]['letter_timer'] = letter_frequency
+        max_letters = data.get('max_letters', games[game_id]['max_letters'])
+        games[game_id]['max_letters'] = max_letters
 
     num_agents = data.get('num_agents', 0)
     for i in range(num_agents):

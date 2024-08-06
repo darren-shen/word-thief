@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useWordChecker } from 'react-word-checker'
 import io from 'socket.io-client';
 import ReactModal from 'react-modal';
+import LetterTile from './LetterTile'
 
 const socket = io('http://localhost:5001/', {
   transports: ["websocket"],
@@ -153,33 +154,33 @@ const GameBoard = ({ username, gameId }) => {
     /* TODO: add formatting! :D */
 
     return (
-      <div id="gameBoard" tabIndex="0">
-        <div className="flex flex-row justify-center">
+      <div id="gameBoard" tabIndex="0" className="bg-gradient-to-b from-[#151444] to-[#7F5AE0] absolute inset-0 flex flex-col">
+        <div className="flex flex-row justify-center h-[140px]">
           <button onClick={lettersClick}>
-            <p className="mt-4 p-2">LETTERS</p>
-            {gameState["letters"]?.split("").map((char, i) => (
-              <span key={i} className="border border-black pl-1.5 pr-1.5 pt-0.5 pb-0.5 m-1 rounded-md inline-block">
-                {char}
-              </span>
-            ))}
+            <p className="p-2 text-white font-bold text-2xl">LETTERS</p>
+            <div className="bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-md p-4">
+              {gameState["letters"]?.split("").map((char, i) => (
+                <LetterTile letter={char} />
+              ))}
+            </div>
           </button>
         </div>
         <div className="flex flex-row justify-center space-x-10">
           {Object.keys(gameState.players || {}).map((playerId) => (
             <div key={playerId}>
               <button onClick={() => wordListClick(playerId, gameState.players[playerId].words)}>
-                <p className="mt-4 p-2 justify-center flex flex-row">
+                <p className="text-white font-bold text-2xl mt-4 p-2 justify-center flex flex-row">
                   {playerId === username ? 'YOUR WORDS' : playerId}
                 </p>
-                {gameState.players[playerId].words.map((word, i) => (
-                  <div key={i} className="flex flex-row justify-center">
-                    {word.split('').map((char, j) => (
-                      <div key={j} className="border border-black pl-1.5 pr-1.5 pt-0.5 pb-0.5 m-1 rounded-md">
-                        {char}
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                <div className="w-[350px] p-6 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-md overflow-auto" style={{ maxHeight: `calc(100vh - 300px)` }}>
+                  {gameState.players[playerId].words.map((word, i) => (
+                    <div key={i} className="flex flex-row justify-center py-0.5">
+                      {word.split('').map((char, j) => (
+                        <LetterTile letter={char} />
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </button>
             </div>
           ))}
@@ -190,8 +191,8 @@ const GameBoard = ({ username, gameId }) => {
           value={currWord}
           onKeyDown={handleKeyPress}
           onChange={()=>{}}
-          className="absolute bottom-0 left-0 right-0 border border-black p-2 m-3 rounded-md"
-          placeholder="Type your word"
+          className="text-center fixed bottom-0 left-0 right-0 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-lg p-2 m-3 text-main-blue h-[50px] text-xl font-bold"
+          placeholder="TYPE YOUR WORD"
         />
 
         <ReactModal
