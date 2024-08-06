@@ -8,7 +8,7 @@ import LetterTile from './LetterTile'
 const socket = io(process.env.NEXT_PUBLIC_ROOT_API_URL, {
   transports: ["websocket"],
   cors: {
-    origin: "http://localhost:3000/",
+    origin: "https://word-thief.vercel.app/",
   },
   }
 )

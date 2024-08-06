@@ -13,7 +13,7 @@ const JoinForm = ({ onJoin }) => {
       setError('');
   
       try {
-        const response = await fetch('http://localhost:5001/validate', {
+        const response = await fetch('https://word-thief-95bafb89233d.herokuapp.com/validate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
