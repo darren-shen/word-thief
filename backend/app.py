@@ -316,7 +316,7 @@ def random_lobby():
 
 def end_check(game_id):
     if games[game_id]["gametype"] == "flash":
-        if (len(games[game_id]["letter_distribution"]) == 143):
+        if (len(games[game_id]["letter_distribution"]) == 0):
             return 10
         return None
     else:
