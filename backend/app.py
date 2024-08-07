@@ -226,9 +226,8 @@ def remove_letters(game_id, new_letters):
             temp += l
     games[game_id]['letters'] = temp
 
-@app.route('/http-call')
-def http_call():
-    print('hi')
+@app.route('/')
+def index():
     data = {'data':'This text was fetched using an HTTP call to server on render'}
     return jsonify(data)
         
@@ -345,4 +344,4 @@ def find_winner(game_id):
         return winner
 
 if __name__ == '__main__':
-    socketio.run(app, port=5001, debug=True)
+    app.run(debug=True, host='127.0.0.1', port=5004)
