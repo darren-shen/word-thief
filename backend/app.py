@@ -344,4 +344,4 @@ def find_winner(game_id):
         return winner
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5004)
+    socketio.run(debug=True, host='127.0.0.1', port=5004)
