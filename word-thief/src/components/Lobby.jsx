@@ -6,7 +6,7 @@ import inactiveFlash from "../../public/assets/InactiveFlash.svg"
 import activeExtended from "../../public/assets/ActiveExtended.svg"
 import inactiveExtended from "../../public/assets/InactiveExtended.svg"
 
-const socket = io(process.env.NEXT_PUBLIC_ROOT_API_URL, {
+const socket = io('https://word-thief-95bafb89233d.herokuapp.com/', {
   transports: ['websocket'],
   cors: {
     origin: 'https://word-thief.vercel.app/',

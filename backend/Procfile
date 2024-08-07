@@ -1,2 +1,2 @@
 
-web: python gamestate.py
+web: gunicorn wsgi:app

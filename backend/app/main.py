@@ -7,7 +7,6 @@ from random import sample, randint, choice, choices
 from datetime import datetime
 from string import ascii_uppercase, digits
 from time import sleep
-import os
 
 """
 list of bugs to fix:
@@ -15,6 +14,7 @@ list of bugs to fix:
 """
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret'
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -344,4 +344,4 @@ def find_winner(game_id):
         return winner
 
 if __name__ == '__main__':
-    socketio.run(app, port=int(os.environ.get('PORT', 5000)), debug=True)
+    socketio.run(app, port=5001, debug=True)
