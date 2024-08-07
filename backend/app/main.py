@@ -7,6 +7,8 @@ from random import sample, randint, choice, choices
 from datetime import datetime
 from string import ascii_uppercase, digits
 from time import sleep
+import eventlet
+eventlet.monkey_patch()
 
 """
 list of bugs to fix:
@@ -16,7 +18,7 @@ list of bugs to fix:
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 CORS(app, resources={r"/*": {"origins": "*"}})
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 global games
 games = {}
