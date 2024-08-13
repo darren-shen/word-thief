@@ -32,7 +32,7 @@ default_gamestate = {
     "letter_distribution": alphabet, 
     "letters": "",
     "letter_counts": defaultdict(int),
-    "max_letters": 10,
+    "max_letters": 20,
     "letter_frequency": 2,
     "letter_timer": 2,
     "players": {},
@@ -147,7 +147,7 @@ def start(data):
         if not games[game_id]["ended"]:
             curr_time = datetime.now()
             games[game_id]["letter_timer"] -= (curr_time - prev_time).total_seconds() 
-            if games[game_id]["letter_timer"] < 0 and (len(games[game_id]["letters"]) < games[game_id]["max_letters"] or games[game_id]["gametype"] == "flash") and not games[game_id]["end_countdown"]:
+            if games[game_id]["letter_timer"] < 0 and (len(games[game_id]["letters"]) < games[game_id]["max_letters"]) and not games[game_id]["end_countdown"]:
                 add_random_letter(game_id)
                 games[game_id]["letter_timer"] = games[game_id]["letter_frequency"]
             

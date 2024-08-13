@@ -171,7 +171,7 @@ const GameBoard = ({ username, gameId, onGameEnd }) => {
                 <p className="text-white font-bold text-2xl mt-4 p-2 justify-center flex flex-row">
                   {playerId === username ? 'YOUR WORDS' : playerId}
                 </p>
-                <div className="w-[350px] p-6 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-md overflow-auto" style={{ maxHeight: `calc(100vh - 300px)` }}>
+                <div className="w-[300px] p-6 bg-gradient-to-b from-[#E4EAFE] to-[#C7D1F6] rounded-md overflow-auto" style={{ maxHeight: `calc(100vh - 300px)` }}>
                   {gameState.players[playerId].words.map((word, i) => (
                     <div key={i} className="flex flex-row justify-center py-0.5">
                       {word.split('').map((char, j) => (
