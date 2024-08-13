@@ -1,7 +1,5 @@
 # Word Thief
 
-![Word Thief](https://your-image-link-here)
-
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -9,7 +7,7 @@
 - [Game Modes](#game-modes)
 - [Screenshots](#screenshots)
 - [Tech Stack](#tech-stack)
-- [Setup](#Setup)
+- [Setup](#setup)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -32,12 +30,13 @@ The game is hosted at [word-thief.vercel.app](https://word-thief.vercel.app), an
 ## Game Modes
 
 - **Flash**: Letters appear every 2 seconds, and after all 144 letters have appeared the player with the most letters wins.
-- **Extended**: In this gamemode you can choose how frequently letters appear, and you play until someone makes {words to win} words.
+- **Extended**: In this gamemode you can choose how frequently letters appear, and you play until someone makes enough words to win! Choose how many words to play to.
 
 ## Screenshots
 
-![Game Screenshot](https://your-screenshot-link-here)
-![Lobby Screenshot](https://your-screenshot-link-here)
+![Form Screenshot](./images/form.png)
+![Lobby Screenshot](./images/lobby.png)
+![Game Screenshot](./images/game.png)
 
 ## Tech Stack
 
